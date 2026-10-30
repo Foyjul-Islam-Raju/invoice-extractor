@@ -4,26 +4,37 @@ A Vercel-ready invoice intake app. Upload one PDF or image, extract invoice fiel
 
 ## Run locally
 
-Use Node.js 22 or newer. Copy `.env.example` to `.env.local` and add an AI Gateway key:
+Use Node.js 22 or newer. AI Gateway needs authentication for every extraction request. For local development, choose one of these options:
+
+**Use the Vercel project’s OIDC token** (recommended when this repo is linked to Vercel):
 
 ```powershell
-Copy-Item .env.example .env.local
-```
-
-Then set `AI_GATEWAY_API_KEY` in `.env.local` and start the app:
-
-```powershell
+npx vercel login
+npx vercel link
+npx vercel env pull .env.local
 npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+The pulled OIDC token expires periodically; run `npx vercel env pull .env.local` again if local extraction stops authenticating.
 
-`AI_GATEWAY_MODEL` is optional. The app defaults to `openai/gpt-5.4`, which currently accepts images and PDFs and supports structured output. Set a different current model ID in `provider/model` format if you prefer another model.
+**Or use an AI Gateway API key** from the Vercel dashboard:
+
+```powershell
+Copy-Item .env.example .env.local
+npm install
+npm run dev
+```
+
+Set `AI_GATEWAY_API_KEY` in `.env.local` before starting the app. Keep this key server-side; `.env.local` is ignored by Git.
+
+Then open [http://localhost:3000](http://localhost:3000).
+
+`AI_GATEWAY_MODEL` is optional. The app defaults to `openai/gpt-5.4`. Set a different model ID in `provider/model` format if you prefer another model.
 
 ## Deploy to Vercel
 
-Use the repository root as the Vercel project root. Add `AI_GATEWAY_API_KEY` in the Vercel project's Environment Variables, or configure Vercel OIDC for AI Gateway. Add `AI_GATEWAY_MODEL` only if you want to override the default. Redeploy after setting variables.
+Set the Vercel project's Root Directory to this app's root (the folder containing `package.json`). AI Gateway uses Vercel OIDC automatically for deployed requests when Secure Backend Access with OIDC is enabled for the project. Alternatively, add `AI_GATEWAY_API_KEY` in the Vercel project's Environment Variables. Add `AI_GATEWAY_MODEL` only if you want to override the default, then redeploy after changing project settings.
 
 ## File handling
 
