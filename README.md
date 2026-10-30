@@ -23,7 +23,7 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Deploy to Vercel
 
-Import the `outputs/invoice-extractor` folder as the project root. Add `AI_GATEWAY_API_KEY` in the Vercel project's Environment Variables, or configure Vercel OIDC for AI Gateway. Add `AI_GATEWAY_MODEL` only if you want to override the default. Redeploy after setting variables.
+Use the repository root as the Vercel project root. Add `AI_GATEWAY_API_KEY` in the Vercel project's Environment Variables, or configure Vercel OIDC for AI Gateway. Add `AI_GATEWAY_MODEL` only if you want to override the default. Redeploy after setting variables.
 
 ## File handling
 
