@@ -24,10 +24,6 @@ export async function POST(request: Request) {
     return jsonError("This file is too large. Choose a file under 4 MB.", 413);
   }
 
-  if (!process.env.AI_GATEWAY_API_KEY && !process.env.VERCEL_OIDC_TOKEN) {
-    return jsonError("AI extraction is not connected yet. Add an AI Gateway key to run this step.", 503);
-  }
-
   let formData: FormData;
   try {
     formData = await request.formData();
@@ -83,7 +79,19 @@ export async function POST(request: Request) {
 
     if (!output) return jsonError("We couldn’t read enough from that invoice. Try a clearer copy.", 422);
     return Response.json(output, { headers: { "Cache-Control": "no-store" } });
-  } catch {
+  } catch (cause) {
+    const message = cause instanceof Error ? cause.message : "";
+    const missingGatewayAuth = /x-vercel-oidc-token|VERCEL_OIDC_TOKEN|AI_GATEWAY_API_KEY|gateway.*auth|oidc.*token/i.test(message);
+
+    if (missingGatewayAuth) {
+      return jsonError(
+        process.env.VERCEL
+          ? "Vercel could not authenticate with AI Gateway. Enable OIDC for this project or add AI_GATEWAY_API_KEY in its Environment Variables."
+          : "Local AI extraction needs credentials. Link this folder to the Vercel project and run `npx vercel env pull .env.local`, or set AI_GATEWAY_API_KEY in .env.local, then restart the app.",
+        503,
+      );
+    }
+
     return jsonError("We couldn’t extract this invoice. Try a clearer copy, or check the AI Gateway setup.", 502);
   }
 }
